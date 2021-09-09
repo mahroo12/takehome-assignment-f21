@@ -64,6 +64,39 @@ def delete_show(id):
 
 
 # TODO: Implement the rest of the API here!
+@app.route("/shows/<id>", methods=['GET'])
+def get_show(id):
+    if db.getById('shows', int(id)) is None:
+        return create_response(status=404, message="No show with this id exists")
+    else:
+        return create_response({"show": db.getById('shows', int(id))})
+
+@app.route("/shows", methods=['POST'])
+def post_show():
+    opt_param = request.get_json()
+    if "name" not in opt_param:
+        return create_response(status=422, message="No name provided")
+    if "episodes_seen" not in opt_param:
+        return create_response(status=422, message="No episodes_seen provided")
+    else:
+        data = {'name': request.json['name'], 'episodes_seen': request.json['episodes_seen']}
+        return create_response({"show": db.create('shows', data)}, status=201)
+
+@app.route("/shows/<id>", methods=['PUT'])
+def put_show(id):
+    if db.getById('shows', int(id)) is None:
+        return create_response(status=404, message="No show with this id exists")
+    else:
+        opt_param = request.get_json()
+        if "name" not in opt_param:
+            data= {'episodes_seen': request.json['episodes_seen']}
+            return create_response({"show": db.updateById('shows', int(id), data)}, status=201)
+        elif "episodes_seen" not in opt_param:
+            data = {'name': request.json['name']}
+            return create_response({"show": db.updateById('shows', int(id), data)}, status=201)
+        else:
+            data = {'name': request.json['name'], 'episodes_seen': request.json['episodes_seen']}
+            return create_response({"show": db.updateById('shows', int(id), data)}, status=201)
 
 """
 ~~~~~~~~~~~~ END API ~~~~~~~~~~~~
